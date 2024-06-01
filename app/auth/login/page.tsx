@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-export default function SignUp() {
+export default function Login() {
   //VALIDATION SCHEMA
   const validationSchema = yup.object({
     name: yup.string().required("Name is required"),

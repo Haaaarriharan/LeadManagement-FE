@@ -1,36 +1,13 @@
 "use client";
-import { ThemeProvider } from "next-themes";
-import { useState, useEffect, use } from "react";
-import {
-  useRouter,
-  useParams,
-  useSearchParams,
-  usePathname,
-} from "next/navigation";
+import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 
-export default function Providers({ children }: any) {
-  const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
+const queryClient = new QueryClient();
 
-  const router = useRouter();
-
-  const path = usePathname();
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-}
+};
+
+export default Providers;

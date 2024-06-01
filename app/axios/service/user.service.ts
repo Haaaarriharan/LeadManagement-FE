@@ -5,6 +5,18 @@ class UserServices {
     return await apiInstance.post("/auth/signup", payload);
   };
 
+  createUserDetails = async (payload: any) => {
+    return await apiInstance.post("/user/create", payload);
+  };
+
+  createEditDetails = async (id: string, payload: any) => {
+    return await apiInstance.patch(`/user/update/${id}`, payload);
+  };
+
+  deactiveUser = async (id: string) => {
+    return await apiInstance.patch(`/user/remove/${id}`, {});
+  };
+
   getSourceList = async () => {
     return await apiInstance.get("/source/list");
   };
@@ -15,6 +27,10 @@ class UserServices {
 
   getUserTypeList = async () => {
     return await apiInstance.get("/usertype/list");
+  };
+
+  getUserAllList = async () => {
+    return await apiInstance.get("/user/listall");
   };
 }
 
