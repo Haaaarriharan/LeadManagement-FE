@@ -8,7 +8,7 @@ import Header from "@/components/header/header";
 import { DataTable } from "@/components/table/table";
 import Footer from "@/components/footer/footer";
 import CreateUserModel from "@/components/Model";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import UserService from "../axios/service/user.service";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,11 +26,23 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@radix-ui/react-tooltip";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import CustomSelect from "@/components/Select";
 
 const Dashboard = () => {
   const [openForm, setOpenForm] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [EditDatas, setEditDatas] = useState<any>({});
+  const [setdropdown, setNewDropDown] = useState<any>([]);
+  const [search, searchDatas] = useState<any>({
+    serachField: "",
+    dropdownSearchFieldName: "",
+    dropdownSearchFieldValue: "",
+  });
+
   //TABLE DATA INITIALIZATION
   const EmployeeColumns: ColumnDef<any>[] = [
     {
@@ -146,20 +158,65 @@ const Dashboard = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {}}>Edit</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setOpenForm(true);
+                  setIsEdit(true);
+                  setEditDatas(row?.original);
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {}}>Deactivate</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  deleteUserDetails(row?.original);
+                }}
+              >
+                {row?.original?.isActive ? "Deactivate" : "Active"}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
       },
     },
   ];
+  console.log("datssssssssssss", search);
 
   const getUserAllList: any = useQuery(
-    ["getUserAllList"],
+    ["getUserAllListss", search.serachField, search.dropdownSearchFieldValue],
     async () => {
-      return await UserService.getUserAllList();
+      let payload: any = {
+        $or: [
+          {
+            businessName: {
+              $regex: search?.serachField || "",
+              $options: "i",
+            },
+          },
+          {
+            phoneNumber: {
+              $regex: search?.serachField || "",
+              $options: "i",
+            },
+          },
+          {
+            email: {
+              $regex: search?.serachField || "",
+              $options: "i",
+            },
+          },
+        ],
+      };
+      if (
+        search.dropdownSearchFieldName !== "" &&
+        search.dropdownSearchFieldValue !== ""
+      ) {
+        payload[search.dropdownSearchFieldName] =
+          search.dropdownSearchFieldValue;
+      }
+      console.log("datssssssssssss", payload);
+      return await UserService.getUserAllList(payload);
     },
     {
       onSuccess: () => {},
@@ -169,7 +226,67 @@ const Dashboard = () => {
     }
   );
 
-  console.log("getUserAllList", getUserAllList);
+  const { mutate: deleteUserDetails, isLoading: updateloading } =
+    useMutation<any>(
+      async (data: any) => {
+        let newPayload = {
+          isActive: !data?.isActive,
+        };
+        return await UserService.deactiveUser(data?._id, newPayload);
+      },
+      {
+        onSuccess: (res: any) => {
+          getUserAllList.refetch();
+          toast.success(`${res.message}`);
+        },
+        onError: (err: any) => {
+          console.log(err.response?.data || err);
+          toast.error(`${err.message}`);
+        },
+      }
+    );
+  const filterList = [
+    { value: "userTypeId", label: "User" },
+    { value: "productId", label: "Product" },
+    { value: "sourceId", label: "Source" },
+  ];
+
+  const UserType = async () => {
+    let res;
+    if (search?.dropdownSearchFieldName === "userTypeId") {
+      res = await UserService.getUserTypeList();
+    } else if (search?.dropdownSearchFieldName === "productId") {
+      res = await UserService.getProductList();
+    } else {
+      res = await UserService.getSourceList();
+    }
+    try {
+      if (search?.dropdownSearchFieldName === "userTypeId") {
+        console.log("res", res);
+
+        let newVal =
+          res?.data?.map((d: any) => {
+            return { value: d?._id, label: d?.type };
+          }) || [];
+        setNewDropDown(newVal);
+        return;
+      }
+
+      let newVal1 =
+        res?.data?.map((d: any) => {
+          return { value: d?._id, label: d?.name };
+        }) || [];
+      setNewDropDown(newVal1);
+    } catch (err) {
+      console.log("erri", err);
+    }
+  };
+  useEffect(() => {
+    if (search?.dropdownSearchFieldName !== "") {
+      UserType();
+    }
+  }, [search?.dropdownSearchFieldName]);
+  console.log("getUserAllList?.data?.data", getUserAllList?.data?.data);
 
   return (
     <div className=" flex flex-col justify-between h-[100vh]">
@@ -196,14 +313,55 @@ const Dashboard = () => {
               openForm={openForm}
               setOpenForm={setOpenForm}
               getUserAllList={getUserAllList}
+              EditDatas={EditDatas}
+              setEditDatas={setEditDatas}
+              setIsEdit={setIsEdit}
+              isEdit={isEdit}
             />
           )}
+        </div>
+        <div className="flex mb-3">
+          <Input
+            placeholder="Filter name, email , phone no..."
+            value={search.serachField}
+            onChange={(event) => {
+              searchDatas({ ...search, serachField: event.target.value });
+            }}
+            className="w-[300px] mr-2"
+          />
+
+          <CustomSelect
+            placeholder={"select header"}
+            options={filterList}
+            styles={"w-[160px]  mr-2"}
+            customOnChange={(e: any) => {
+              // formik.setFieldValue("userTypeId", e);
+              searchDatas({
+                ...search,
+                dropdownSearchFieldName: e,
+                dropdownSearchFieldValue: "",
+              });
+            }}
+            value={search?.dropdownSearchFieldName}
+          />
+          <CustomSelect
+            placeholder={"select options"}
+            options={setdropdown}
+            styles={"w-[160px] "}
+            customOnChange={(e: any) => {
+              // formik.setFieldValue("userTypeId", e);
+              searchDatas({ ...search, dropdownSearchFieldValue: e });
+            }}
+            value={search?.dropdownSearchFieldValue}
+          />
         </div>
         {!getUserAllList?.isLoading ? (
           <div>
             <DataTable
               data={getUserAllList?.data?.data || []}
               columns={EmployeeColumns}
+              searchDatas={searchDatas}
+              search={search}
             />
           </div>
         ) : (

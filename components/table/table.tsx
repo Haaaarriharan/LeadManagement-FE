@@ -31,12 +31,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import CustomSelect from "../Select";
+import UserService from "@/app/axios/service/user.service";
+import { useEffect } from "react";
 
 interface DataTableProps {
   data: Record<string, any>[];
   columns: ColumnDef<any>[];
+  search: any;
+  searchDatas: any;
 }
-export function DataTable({ data, columns }: DataTableProps) {
+export function DataTable({
+  data,
+  columns,
+  searchDatas,
+  search,
+}: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -67,45 +77,6 @@ export function DataTable({ data, columns }: DataTableProps) {
 
   return (
     <div className="w-full">
-      <div className="flex mb-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Input
-          placeholder="Filter name..."
-          value={
-            (table.getColumn("employeeName")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("employeeName")?.setFilterValue(event.target.value)
-          }
-          className="w-[300px] ml-2"
-        />
-      </div>
-
       <div className="rounded-md border ">
         <Table>
           <TableHeader>

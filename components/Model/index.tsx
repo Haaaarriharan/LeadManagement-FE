@@ -16,7 +16,15 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import CustomSelect from "../Select";
 
-function CreateUserModel({ openForm, setOpenForm }: any) {
+function CreateUserModel({
+  openForm,
+  setOpenForm,
+  getUserAllList,
+  EditDatas,
+  setEditDatas,
+  setIsEdit,
+  isEdit,
+}: any) {
   const [type, setType] = useState(false);
 
   //VALIDATION SCHEMA
@@ -35,22 +43,21 @@ function CreateUserModel({ openForm, setOpenForm }: any) {
     sourceId: yup.string().required("Source is required"),
   });
 
-  const formik = useFormik({
+  const formik: any = useFormik({
     enableReinitialize: true,
     //INITIAL VALUES
     initialValues: {
-      businessName: "",
-      email: "",
-      phoneNumber: "",
-      userTypeId: "",
-      productId: "",
-      sourceId: "",
+      businessName: isEdit ? EditDatas?.businessName : "",
+      email: isEdit ? EditDatas?.email : "",
+      phoneNumber: isEdit ? EditDatas?.phoneNumber : "",
+      userTypeId: isEdit ? EditDatas?.userTypeId._id : "",
+      productId: isEdit ? EditDatas?.productId._id : "",
+      sourceId: isEdit ? EditDatas?.sourceId._id : "",
     },
     validationSchema: validationSchema,
     //SUBMITTING THE FORM
-    onSubmit: async (values) => {
-      let finalpayload: any = values;
-      createUserDetails(finalpayload);
+    onSubmit: async (values: any) => {
+      isEdit ? updateUserDetails(values) : createUserDetails(values);
       setOpenForm(false);
       formik.resetForm();
     },
@@ -100,17 +107,35 @@ function CreateUserModel({ openForm, setOpenForm }: any) {
       },
     }
   );
-  const { mutate: createUserDetails, isLoading: loading } = useMutation<any>(
-    async (payloadData: any) => {
-      return await UserService.createUserDetails(payloadData);
-    },
-    {
-      onSuccess: (res: any) => {},
-      onError: (err: any) => {
-        console.log(err.response?.data || err);
+  const { mutate: createUserDetails, isLoading: createloading } =
+    useMutation<any>(
+      async (payloadData: any) => {
+        return await UserService.createUserDetails(payloadData);
       },
-    }
-  );
+      {
+        onSuccess: (res: any) => {
+          getUserAllList.refetch();
+        },
+        onError: (err: any) => {
+          console.log(err.response?.data || err);
+        },
+      }
+    );
+
+  const { mutate: updateUserDetails, isLoading: updateloading } =
+    useMutation<any>(
+      async (payloadData: any) => {
+        return await UserService.editUserDetails(EditDatas?._id, payloadData);
+      },
+      {
+        onSuccess: (res: any) => {
+          getUserAllList.refetch();
+        },
+        onError: (err: any) => {
+          console.log(err.response?.data || err);
+        },
+      }
+    );
 
   //CLOSE MODEL FUNCTION
   const handleClose = () => {
@@ -266,11 +291,11 @@ function CreateUserModel({ openForm, setOpenForm }: any) {
               }
             >
               {" "}
-              {type
-                ? loading
+              {isEdit
+                ? updateloading
                   ? "loading"
                   : "Update Employee"
-                : loading
+                : createloading
                 ? "loading"
                 : "Create Employee"}
             </Button>

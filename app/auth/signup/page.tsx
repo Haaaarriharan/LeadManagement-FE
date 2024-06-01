@@ -13,8 +13,13 @@ import { Button } from "@/components/ui/button";
 /********************************Import Formik*************************************/
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useMutation } from "react-query";
+import UserService from "@/app/axios/service/user.service";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
+  const router = useRouter();
   //VALIDATION SCHEMA
   const validationSchema = yup.object({
     name: yup.string().required("Name is required"),
@@ -22,7 +27,9 @@ export default function SignUp() {
     password: yup.string().required("Password is required"),
   });
 
-  const formik = useFormik({
+  const formik: any = useFormik({
+    enableReinitialize: true,
+
     //INITIAL VALUES
     initialValues: {
       name: "",
@@ -30,10 +37,27 @@ export default function SignUp() {
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: (values: any) => {
       // dispatch(loginUser(values));
+      signUpUser(values);
     },
   });
+
+  const { mutate: signUpUser, isLoading: loading } = useMutation<any>(
+    async (data: any) => {
+      return await UserService.signUp(data);
+    },
+    {
+      onSuccess: (res: any) => {
+        router.push("/");
+        toast.success(`${res.message}`);
+      },
+      onError: (err: any) => {
+        console.log(err.response?.data || err);
+        toast.error(`${err.message}`);
+      },
+    }
+  );
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-950">
@@ -97,7 +121,7 @@ export default function SignUp() {
           </CardContent>
           <CardFooter>
             <Button className="w-full" type="submit">
-              Create User
+              {loading ? "loading" : "Create User"}
             </Button>
           </CardFooter>
         </form>

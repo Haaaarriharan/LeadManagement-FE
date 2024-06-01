@@ -13,26 +13,47 @@ import { Button } from "@/components/ui/button";
 /********************************Import Formik*************************************/
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useRouter } from "next/navigation";
+import { useMutation } from "react-query";
+import UserService from "@/app/axios/service/user.service";
+import { toast } from "sonner";
 
 export default function Login() {
+  const router = useRouter();
   //VALIDATION SCHEMA
   const validationSchema = yup.object({
-    name: yup.string().required("Name is required"),
     email: yup.string().email("Invalid email").required("Email is required"),
     password: yup.string().required("Password is required"),
   });
 
-  const formik = useFormik({
+  const formik: any = useFormik({
     //INITIAL VALUES
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: (values: any) => {
       // dispatch(loginUser(values));
+      loginUser(values);
     },
   });
+
+  const { mutate: loginUser, isLoading: loading } = useMutation<any>(
+    async (data: any) => {
+      return await UserService.login(data);
+    },
+    {
+      onSuccess: (res: any) => {
+        router.push("/dashboard");
+        toast.success(`${res.message}`);
+      },
+      onError: (err: any) => {
+        console.log(err.response?.data || err);
+        toast.error(`${err.response?.data?.message}`);
+      },
+    }
+  );
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-950">
@@ -74,11 +95,26 @@ export default function Login() {
                   {formik.errors.password}
                 </div>
               ) : null}
+              <main className="flex justify-between">
+                <div></div>
+                <div
+                  onClick={() => {
+                    router.push("/auth/signup");
+                  }}
+                  className="cursor-pointer"
+                  style={{
+                    color: "#1778F2",
+                  }}
+                >
+                  signup ?
+                </div>
+              </main>
             </div>
           </CardContent>
+
           <CardFooter>
             <Button className="w-full" type="submit">
-              SignIn
+              {loading ? "logging" : "Create User"}
             </Button>
           </CardFooter>
         </form>

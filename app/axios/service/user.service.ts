@@ -2,19 +2,23 @@ import apiInstance from "..";
 
 class UserServices {
   signUp = async (payload: any) => {
-    return await apiInstance.post("/auth/signup", payload);
+    return await apiInstance.post("/register", payload);
+  };
+
+  login = async (payload: any) => {
+    return await apiInstance.post("/login", payload);
   };
 
   createUserDetails = async (payload: any) => {
     return await apiInstance.post("/user/create", payload);
   };
 
-  createEditDetails = async (id: string, payload: any) => {
+  editUserDetails = async (id: string, payload: any) => {
     return await apiInstance.patch(`/user/update/${id}`, payload);
   };
 
-  deactiveUser = async (id: string) => {
-    return await apiInstance.patch(`/user/remove/${id}`, {});
+  deactiveUser = async (id: string, payload: any) => {
+    return await apiInstance.patch(`/user/remove/${id}`, payload);
   };
 
   getSourceList = async () => {
@@ -29,8 +33,8 @@ class UserServices {
     return await apiInstance.get("/usertype/list");
   };
 
-  getUserAllList = async () => {
-    return await apiInstance.get("/user/listall");
+  getUserAllList = async (payload: any) => {
+    return await apiInstance.post("/user/listall", payload);
   };
 }
 
