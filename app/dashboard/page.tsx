@@ -311,6 +311,7 @@ const Dashboard = () => {
               <Button
                 onClick={() => {
                   setOpenForm(true);
+                  setIsEdit(false);
                 }}
                 className="mt-4 gap-3"
                 variant={"default"}

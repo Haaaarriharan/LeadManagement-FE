@@ -149,6 +149,8 @@ function CreateUserModel({
     formik.resetForm();
     setOpenForm(false);
     setType(false);
+    setIsEdit(false);
+    setEditDatas({});
   };
   return (
     <Dialog
@@ -161,6 +163,7 @@ function CreateUserModel({
         className="h-[90vh] overflow-y-scroll"
         onCloseAutoFocus={() => {
           setOpenForm(false);
+          handleClose();
         }}
       >
         <form onSubmit={formik.handleSubmit}>
@@ -169,7 +172,7 @@ function CreateUserModel({
               {type ? "Update" : "Add"} User Detail's
             </p>
             <div className="items-center gap-4">
-              <p className="text-sm font-semibold pb-1">Name</p>
+              <p className="text-sm font-semibold pb-1">Business Name</p>
               <Input
                 id="businessName"
                 name="businessName"
