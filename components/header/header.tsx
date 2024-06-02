@@ -1,3 +1,4 @@
+"use client";
 // import { useDispatch, useSelector } from "react-redux";
 // COMPONENETS
 import {
@@ -13,10 +14,17 @@ import {
 // import { clearuserData } from "@/redux/userReducer";
 // import { RootState } from "@/redux/store";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   // const dispatch: any = useDispatch();
   // const { data }: any = useSelector((state: RootState) => state.user);
+  const router = useRouter();
+
+  const userData: any = localStorage.getItem("loggedUser");
+  const userDetails = JSON.parse(userData);
+
+  console.log("datas", userDetails);
 
   return (
     <header
@@ -38,26 +46,23 @@ const Header = () => {
                 variant="ghost"
                 className=" hover:bg-black select-none"
               >
-                {/* <img
+                <img
                   alt="Avatar"
                   className="rounded-full"
                   height="32"
-                  src="https://as1.ftcdn.net/v2/jpg/05/86/52/38/1000_F_586523892_tNPOUFiFbyvPqmdFUV1rZ9pDura6AbGA.jpg"
-                  style={{
-                    aspectRatio: "32/32",
-                    objectFit: "cover",
-                  }}
+                  src="https://github.com/shadcn.png"
                   width="32"
-                /> */}
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Hari</DropdownMenuLabel>
+              <DropdownMenuLabel>{userDetails?.name}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
                   // dispatch(clearuserData());
                   // dispatch(clearEmployeeData());
+                  router.push("/");
                 }}
                 className=" bg-black hover:bg-red-600 hover:cursor-pointer text-white"
               >

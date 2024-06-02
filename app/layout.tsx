@@ -28,6 +28,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+        {/*USED TO INTEGRATING WITH REACT QUERY  */}
         <Providers>
           {children}
           <Toaster position="top-right" richColors closeButton />

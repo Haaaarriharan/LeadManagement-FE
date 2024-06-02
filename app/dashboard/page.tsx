@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 // SERVICE
 import Loading from "@/components/loader/loader";
-// TOAST
+// COMPONENTS
 import Header from "@/components/header/header";
 import { DataTable } from "@/components/table/table";
 import Footer from "@/components/footer/footer";
@@ -31,6 +31,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import CustomSelect from "@/components/Select";
+import { RefreshCcw } from "lucide-react";
 
 const Dashboard = () => {
   const [openForm, setOpenForm] = useState(false);
@@ -181,8 +182,8 @@ const Dashboard = () => {
       },
     },
   ];
-  console.log("datssssssssssss", search);
 
+  // ALL USER LIST....
   const getUserAllList: any = useQuery(
     ["getUserAllListss", search.serachField, search.dropdownSearchFieldValue],
     async () => {
@@ -215,7 +216,6 @@ const Dashboard = () => {
         payload[search.dropdownSearchFieldName] =
           search.dropdownSearchFieldValue;
       }
-      console.log("datssssssssssss", payload);
       return await UserService.getUserAllList(payload);
     },
     {
@@ -226,6 +226,7 @@ const Dashboard = () => {
     }
   );
 
+  // DELETE USER LIST
   const { mutate: deleteUserDetails, isLoading: updateloading } =
     useMutation<any>(
       async (data: any) => {
@@ -245,12 +246,15 @@ const Dashboard = () => {
         },
       }
     );
+
+  // CUSTOM FILTER
   const filterList = [
     { value: "userTypeId", label: "User" },
     { value: "productId", label: "Product" },
     { value: "sourceId", label: "Source" },
   ];
 
+  // SEARCH WITH TYPES
   const UserType = async () => {
     let res;
     if (search?.dropdownSearchFieldName === "userTypeId") {
@@ -286,7 +290,15 @@ const Dashboard = () => {
       UserType();
     }
   }, [search?.dropdownSearchFieldName]);
-  console.log("getUserAllList?.data?.data", getUserAllList?.data?.data);
+
+  // RESET
+  const handleResetFilter = () => {
+    searchDatas({
+      serachField: "",
+      dropdownSearchFieldName: "",
+      dropdownSearchFieldValue: "",
+    });
+  };
 
   return (
     <div className=" flex flex-col justify-between h-[100vh]">
@@ -347,12 +359,18 @@ const Dashboard = () => {
           <CustomSelect
             placeholder={"select options"}
             options={setdropdown}
-            styles={"w-[160px] "}
+            styles={"w-[160px] mr-2"}
             customOnChange={(e: any) => {
               // formik.setFieldValue("userTypeId", e);
               searchDatas({ ...search, dropdownSearchFieldValue: e });
             }}
             value={search?.dropdownSearchFieldValue}
+          />
+          <RefreshCcw
+            className="w-5 h-5 text-gray-400 hover:text-black hover:cursor-pointer mt-2"
+            onClick={() => {
+              handleResetFilter();
+            }}
           />
         </div>
         {!getUserAllList?.isLoading ? (

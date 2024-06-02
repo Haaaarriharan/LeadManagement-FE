@@ -15,6 +15,7 @@ import UserService from "@/app/axios/service/user.service";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import CustomSelect from "../Select";
+import { toast } from "sonner";
 
 function CreateUserModel({
   openForm,
@@ -115,9 +116,12 @@ function CreateUserModel({
       {
         onSuccess: (res: any) => {
           getUserAllList.refetch();
+          toast.success(`${res.message}`);
+          formik.resetForm();
         },
         onError: (err: any) => {
           console.log(err.response?.data || err);
+          toast.error(`${err.message}`);
         },
       }
     );
@@ -130,9 +134,12 @@ function CreateUserModel({
       {
         onSuccess: (res: any) => {
           getUserAllList.refetch();
+          toast.success(`${res.message}`);
+          formik.resetForm();
         },
         onError: (err: any) => {
           console.log(err.response?.data || err);
+          toast.error(`${err.message}`);
         },
       }
     );

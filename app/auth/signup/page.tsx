@@ -38,11 +38,11 @@ export default function SignUp() {
     },
     validationSchema: validationSchema,
     onSubmit: (values: any) => {
-      // dispatch(loginUser(values));
       signUpUser(values);
     },
   });
 
+  //REGISTER USER
   const { mutate: signUpUser, isLoading: loading } = useMutation<any>(
     async (data: any) => {
       return await UserService.signUp(data);

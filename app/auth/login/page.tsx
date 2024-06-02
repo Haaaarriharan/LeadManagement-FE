@@ -34,11 +34,11 @@ export default function Login() {
     },
     validationSchema: validationSchema,
     onSubmit: (values: any) => {
-      // dispatch(loginUser(values));
       loginUser(values);
     },
   });
 
+  //  LOGIN STUFF
   const { mutate: loginUser, isLoading: loading } = useMutation<any>(
     async (data: any) => {
       return await UserService.login(data);
@@ -47,6 +47,8 @@ export default function Login() {
       onSuccess: (res: any) => {
         router.push("/dashboard");
         toast.success(`${res.message}`);
+        localStorage.setItem("loggedUser", JSON.stringify(res.data));
+        localStorage.setItem("ACCESS_TOKEN", res.token);
       },
       onError: (err: any) => {
         console.log(err.response?.data || err);
