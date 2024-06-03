@@ -116,7 +116,7 @@ export default function Login() {
 
           <CardFooter>
             <Button className="w-full" type="submit">
-              {loading ? "logging" : "Create User"}
+              {loading ? "logging" : "login"}
             </Button>
           </CardFooter>
         </form>
